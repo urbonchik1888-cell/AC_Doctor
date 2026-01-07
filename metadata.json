@@ -1,0 +1,7 @@
+{
+  "name": "AC Doctor AI",
+  "description": "Professional Air Conditioner Diagnosis and Repair Assistant powered by Gemini.",
+  "requestFramePermissions": [
+    "camera"
+  ]
+}
