@@ -5,8 +5,7 @@ yarn-debug.log*
 yarn-error.log*
 
 # Production builds
-dist/
-build/
+# dist/  # Закомментировал для GitHub Pages
 
 # Environment variables
 .env
