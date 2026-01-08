@@ -52,10 +52,10 @@ export const sendMessageToGemini = async (
     }
     const ai = new GoogleGenerativeAI(apiKey);
 
-    // Подберем модель с резервами (некоторые регионы/ключи не имеют доступа ко всем именам)
+    // Подберем модель с резервами (используем бесплатные gemma модели)
     const candidateModels = attachment
-      ? ["gemini-pro-vision", "gemini-1.0-pro-vision"]
-      : ["gemini-1.5-flash", "gemini-pro", "gemini-1.0-pro"];
+      ? ["gemini-2.5-flash-image", "gemini-2.5-flash-image-preview"]
+      : ["gemma-3-4b-it", "gemma-3-12b-it", "gemma-3-27b-it"];
 
     // Сформируем стенограмму: системная инструкция + история + новое сообщение
     const transcript: string = [
@@ -103,14 +103,21 @@ export const sendMessageToGemini = async (
     } catch (e) {
       // ignore ListModels error
     }
-    // 3) Последний шанс — пробуем через v1beta
-    try {
-      const model = ai.getGenerativeModel({ model: "gemini-1.5-flash", generationConfig: { temperature: 0.4 } });
-      const result = await model.generateContent(parts);
-      const text = result.response?.text?.();
-      if (text && text.trim().length > 0) return text;
-    } catch (e) {
-      lastErr = e;
+    // 3) Последний шанс — пробуем базовые модели через v1beta
+    const v1betaModels = attachment
+      ? ["gemini-2.5-flash-image", "gemini-2.5-flash-image-preview"]
+      : ["gemma-3-4b-it", "gemma-3-12b-it", "gemma-3-27b-it", "gemini-2.5-flash"];
+    
+    for (const modelId of v1betaModels) {
+      try {
+        const model = ai.getGenerativeModel({ model: modelId, generationConfig: { temperature: 0.4 } });
+        const result = await model.generateContent(parts);
+        const text = result.response?.text?.();
+        if (text && text.trim().length > 0) return text;
+      } catch (e) {
+        lastErr = e;
+        continue;
+      }
     }
     console.error("Gemini API Fallback Error:", lastErr);
     return "❌ Не удалось подобрать доступную модель Gemini для этого ключа/региона. Попробуйте позже или проверьте доступ к моделям в Google AI Studio.";
