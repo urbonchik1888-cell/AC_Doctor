@@ -4,7 +4,7 @@ import react from '@vitejs/plugin-react'
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [react()],
-  base: '/AC_Doctor/',
+  base: process.env.NODE_ENV === 'production' ? '/AC_Doctor/' : '/',
   build: {
     outDir: 'dist',
     assetsDir: 'assets'

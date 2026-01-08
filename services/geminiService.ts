@@ -55,7 +55,7 @@ export const sendMessageToGemini = async (
     // Подберем модель с резервами (некоторые регионы/ключи не имеют доступа ко всем именам)
     const candidateModels = attachment
       ? ["gemini-pro-vision", "gemini-1.0-pro-vision"]
-      : ["gemini-pro", "gemini-1.0-pro", "gemini-pro-latest"];
+      : ["gemini-1.5-flash", "gemini-pro", "gemini-1.0-pro"];
 
     // Сформируем стенограмму: системная инструкция + история + новое сообщение
     const transcript: string = [
@@ -103,9 +103,9 @@ export const sendMessageToGemini = async (
     } catch (e) {
       // ignore ListModels error
     }
-    // 3) Последний шанс — публичная модель через v1beta
+    // 3) Последний шанс — пробуем через v1beta
     try {
-      const model = ai.getGenerativeModel({ model: "gemini-1.5-flash-latest", generationConfig: { temperature: 0.4 } });
+      const model = ai.getGenerativeModel({ model: "gemini-1.5-flash", generationConfig: { temperature: 0.4 } });
       const result = await model.generateContent(parts);
       const text = result.response?.text?.();
       if (text && text.trim().length > 0) return text;
